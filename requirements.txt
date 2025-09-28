@@ -1,0 +1,20 @@
+# Real-Time Legal Transcription App
+# No Python dependencies required - this is a pure HTML/CSS/JavaScript application
+
+# To run this application:
+# 1. Simply open realtime-transcription.html in any modern web browser
+# 2. No server setup or installation required
+# 3. Works offline after initial load
+
+# Browser Requirements:
+# - Chrome 80+
+# - Firefox 75+
+# - Safari 13+
+# - Edge 80+
+
+# Optional: For local development server (if needed)
+# python -m http.server 8000
+# or
+# python3 -m http.server 8000
+
+# Then visit: http://localhost:8000/realtime-transcription.html

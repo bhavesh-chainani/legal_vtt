@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Legal Transcription</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .app-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            margin: 10px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 0 30px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #4a5568;
+        }
+
+        .logo i {
+            color: #667eea;
+            font-size: 28px;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #718096;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #48bb78;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .main-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 20px;
+            padding: 30px;
+            overflow: hidden;
+        }
+
+        .transcription-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .panel-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .transcription-content {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 15px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.user {
+            justify-content: flex-start;
+        }
+
+        .message.operator {
+            justify-content: flex-end;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-bubble {
+            background: rgba(102, 126, 234, 0.1);
+            color: #2d3748;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .message.operator .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message-meta {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-bottom: 4px;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 18px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            max-width: 100px;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: #a0aec0;
+            border-radius: 50%;
+            animation: typing 1.4s infinite both;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-10px); opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .suggestions-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .suggestions-content {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .suggestion-item {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: slideIn 0.3s ease;
+        }
+
+        .suggestion-item:hover {
+            background: rgba(102, 126, 234, 0.05);
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .suggestion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .suggestion-type {
+            font-size: 12px;
+            font-weight: 600;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .suggestion-confidence {
+            font-size: 12px;
+            color: #718096;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .suggestion-text {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #2d3748;
+            margin-bottom: 12px;
+        }
+
+        .suggestion-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .suggestion-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .suggestion-btn.primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .suggestion-btn.primary:hover {
+            background: #5a67d8;
+        }
+
+        .suggestion-btn.secondary {
+            background: rgba(0, 0, 0, 0.05);
+            color: #718096;
+        }
+
+        .suggestion-btn.secondary:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .suggestion-details {
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+            display: none;
+        }
+
+        .suggestion-details.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .details-section {
+            margin-bottom: 12px;
+        }
+
+        .details-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .details-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .key-points {
+            list-style: none;
+            padding: 0;
+        }
+
+        .key-points li {
+            font-size: 13px;
+            color: #4a5568;
+            margin-bottom: 4px;
+            padding-left: 16px;
+            position: relative;
+        }
+
+        .key-points li:before {
+            content: "•";
+            color: #667eea;
+            position: absolute;
+            left: 0;
+        }
+
+        .natural-response {
+            font-size: 13px;
+            color: #2d3748;
+            font-style: italic;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .follow-up-questions {
+            list-style: none;
+            padding: 0;
+        }
+
+        .follow-up-questions li {
+            font-size: 12px;
+            color: #718096;
+            margin-bottom: 3px;
+            padding-left: 16px;
+            position: relative;
+        }
+
+        .follow-up-questions li:before {
+            content: "?";
+            color: #ed8936;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .welcome-message {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #a0aec0;
+            text-align: center;
+        }
+
+        .welcome-message i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #cbd5e0;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.1);
+        }
+
+        .control-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr 350px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 300px;
+            }
+            
+            .app-container {
+                margin: 5px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 0 20px;
+                height: 60px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .controls {
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-hand-holding-heart"></i>
+                <span>Pro Bono SG</span>
+            </div>
+            <div class="status">
+                <div class="status-dot"></div>
+                <span>Live Transcription</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Transcription Panel -->
+            <div class="transcription-panel">
+                <div class="panel-header">
+                    <h2>Live Conversation</h2>
+                </div>
+                
+                <div class="transcription-content" id="transcriptionContent">
+                    <div class="welcome-message">
+                        <i class="fas fa-microphone-alt"></i>
+                        <p>Real-time transcription will appear here</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Suggestions Panel -->
+            <div class="suggestions-panel">
+                <div class="panel-header">
+                    <h2>AI Suggestions</h2>
+                </div>
+                
+                <div class="suggestions-content" id="suggestionsContent">
+                    <div class="welcome-message">
+                        <i class="fas fa-lightbulb"></i>
+                        <p>AI suggestions will appear here to help guide your conversation</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Floating Controls -->
+        <div class="controls">
+            <button class="control-btn" id="startBtn" title="Start Demo">
+                <i class="fas fa-play"></i>
+            </button>
+            <button class="control-btn" id="pauseBtn" title="Pause Demo">
+                <i class="fas fa-pause"></i>
+            </button>
+            <button class="control-btn" id="resetBtn" title="Reset Demo">
+                <i class="fas fa-redo"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        class RealTimeTranscription {
+            constructor() {
+                this.isRunning = false;
+                this.isPaused = false;
+                this.currentIndex = 0;
+                this.pauseTimeout = null;
+                this.conversation = [
+                    {
+                        speaker: 'user',
+                        text: 'Hello, I need help with a work permit issue. My employer is not paying me correctly.',
+                        isQuestion: true,
+                        delay: 3000
+                    },
+                    {
+                        speaker: 'operator',
+                        text: 'I\'m sorry to hear about your situation. Let me help you understand your rights as a foreign worker in Singapore.',
+                        isQuestion: false,
+                        delay: 4000
+                    },
+                    {
+                        speaker: 'user',
+                        text: 'They\'re deducting money from my salary for accommodation, but I never agreed to this. Is this legal?',
+                        isQuestion: true,
+                        delay: 5000
+                    },
+                    {
+                        speaker: 'operator',
+                        text: 'This is actually a very common issue we see with foreign workers. Under Singapore law, your employer has very strict limitations on what they can deduct from your salary. For accommodation costs specifically, they need your written consent and can only deduct up to 25% of your basic salary. If they didn\'t get your agreement in writing, this is likely illegal and you may be able to recover that money.',
+                        isQuestion: false,
+                        delay: 6000
+                    },
+                    {
+                        speaker: 'user',
+                        text: 'What can I do to get my money back? I\'m worried about losing my job if I complain.',
+                        isQuestion: true,
+                        delay: 4000
+                    },
+                    {
+                        speaker: 'operator',
+                        text: 'I completely understand your concerns about job security - that\'s the biggest worry for most workers in your situation. The good news is that Singapore has strong protections for workers who file complaints. When you file a complaint with MOM, it\'s completely confidential and your employer won\'t know who made the complaint. MOM takes retaliation very seriously, and if your employer tries to punish you for complaining, that becomes a separate violation that we can address. We can also connect you with organizations like Migrant Workers\' Centre who provide free support and can help you through this process safely.',
+                        isQuestion: false,
+                        delay: 7000
+                    }
+                ];
+                
+                this.aiResponses = {
+                    'work permit issue': [
+                        {
+                            type: 'Rights Information',
+                            text: 'Foreign workers in Singapore have specific rights regarding salary payments and deductions.',
+                            confidence: 0.95,
+                            details: {
+                                keyPoints: [
+                                    'All salary deductions must be clearly stated in employment contract',
+                                    'Employers cannot deduct accommodation costs without written agreement',
+                                    'Maximum 25% of salary can be deducted for accommodation',
+                                    'Worker must receive itemized payslips showing all deductions',
+                                    'MOM (Ministry of Manpower) regulates foreign worker rights'
+                                ],
+                                naturalResponse: 'I understand your concern, and this is actually a very common issue we help with. In Singapore, foreign workers have specific rights regarding salary deductions. Your employer cannot deduct accommodation costs unless it\'s clearly stated in your employment contract and you\'ve agreed to it in writing. The law is very clear on this - they need your written consent and can only deduct up to 25% of your basic salary for accommodation. If they didn\'t get your agreement, this is likely illegal.',
+                                followUpQuestions: [
+                                    'Do you have a copy of your employment contract?',
+                                    'What does your payslip show for deductions?',
+                                    'Did you sign any agreement about accommodation costs?'
+                                ]
+                            }
+                        },
+                        {
+                            type: 'Documentation',
+                            text: 'Gather your employment contract, payslips, and any written agreements about accommodation.',
+                            confidence: 0.92,
+                            details: {
+                                keyPoints: [
+                                    'Employment contract and any amendments',
+                                    'All payslips showing deductions',
+                                    'Written agreements about accommodation',
+                                    'Bank statements showing actual payments received',
+                                    'Any communication with employer about salary',
+                                    'Work permit and employment pass documents'
+                                ],
+                                naturalResponse: 'To help you with this case, we need to gather all your employment documentation. This includes your contract, payslips, and any written agreements. Having this information ready will be crucial for any complaint or legal action. I recommend you start collecting your employment contract, all your payslips showing the deductions, any written agreements about accommodation, and your bank statements showing what you actually received. This documentation will be essential when we file a complaint with MOM or pursue legal action.',
+                                followUpQuestions: [
+                                    'Do you have copies of your payslips?',
+                                    'What does your employment contract say about accommodation?',
+                                    'Have you kept any written communication with your employer?'
+                                ]
+                            }
+                        }
+                    ],
+                    'salary deductions legal': [
+                        {
+                            type: 'Legal Requirements',
+                            text: 'Singapore law has strict requirements for salary deductions from foreign workers.',
+                            confidence: 0.89,
+                            details: {
+                                keyPoints: [
+                                    'Deductions must be authorized by Employment Act',
+                                    'Accommodation deductions require written consent',
+                                    'Maximum 25% of basic salary for accommodation',
+                                    'Employer must provide itemized payslips',
+                                    'Unauthorized deductions are illegal and recoverable'
+                                ],
+                                naturalResponse: 'Under Singapore law, your employer has very limited rights to deduct money from your salary. For accommodation costs specifically, they need your written consent and can only deduct up to 25% of your basic salary. If they didn\'t get your agreement, this is likely illegal. The Employment Act is very clear about this - unauthorized deductions are recoverable, and MOM has the power to investigate and order your employer to repay any money that was deducted illegally. This is a serious violation of your rights as a foreign worker.',
+                                followUpQuestions: [
+                                    'What percentage of your salary are they deducting?',
+                                    'Did you sign any document agreeing to accommodation deductions?',
+                                    'Are you receiving itemized payslips showing the deductions?'
+                                ]
+                            }
+                        },
+                        {
+                            type: 'Recovery Options',
+                            text: 'You may be able to recover unauthorized deductions through MOM or legal action.',
+                            confidence: 0.87,
+                            details: {
+                                keyPoints: [
+                                    'File complaint with MOM (Ministry of Manpower)',
+                                    'MOM can investigate and order repayment',
+                                    'Consider legal action for unauthorized deductions',
+                                    'Document all evidence of illegal deductions',
+                                    'Seek assistance from migrant worker organizations'
+                                ],
+                                naturalResponse: 'The good news is that you have several options to recover your money. You can file a complaint with MOM, which has the power to investigate and order your employer to repay unauthorized deductions. MOM takes these cases very seriously and has a good track record of helping workers recover their money. We can also explore legal options if needed, including connecting you with Pro Bono SG for free legal representation. The process is designed to protect workers like you.',
+                                followUpQuestions: [
+                                    'Would you like help filing a MOM complaint?',
+                                    'Do you have evidence of the unauthorized deductions?',
+                                    'Are you concerned about retaliation from your employer?'
+                                ]
+                            }
+                        }
+                    ],
+                    'job security concerns': [
+                        {
+                            type: 'Protection Measures',
+                            text: 'There are ways to protect your rights while maintaining job security.',
+                            confidence: 0.94,
+                            details: {
+                                keyPoints: [
+                                    'MOM complaints are confidential and protect against retaliation',
+                                    'Document all interactions with employer',
+                                    'Keep copies of all employment documents',
+                                    'Report any threats or intimidation to MOM',
+                                    'Consider seeking alternative employment if possible'
+                                ],
+                                naturalResponse: 'I completely understand your concerns about job security - that\'s the biggest worry for most workers in your situation. The good news is that Singapore has strong protections for workers who file complaints. When you file a complaint with MOM, it\'s completely confidential and your employer won\'t know who made the complaint. MOM takes retaliation very seriously, and if your employer tries to punish you for complaining, that becomes a separate violation that we can address. We\'ve seen many cases where workers successfully recovered their money without losing their jobs.',
+                                followUpQuestions: [
+                                    'Has your employer made any threats about complaining?',
+                                    'Do you have other employment options?',
+                                    'Would you like to know more about MOM\'s protection measures?'
+                                ]
+                            }
+                        },
+                        {
+                            type: 'Support Resources',
+                            text: 'There are organizations that can provide support and guidance for foreign workers.',
+                            confidence: 0.88,
+                            details: {
+                                keyPoints: [
+                                    'Migrant Workers\' Centre provides free legal advice',
+                                    'HOME (Humanitarian Organization for Migration Economics) offers support',
+                                    'TWC2 (Transient Workers Count Too) provides assistance',
+                                    'MOM has a 24/7 helpline for foreign workers',
+                                    'Pro Bono SG can provide free legal representation'
+                                ],
+                                naturalResponse: 'You\'re not alone in this situation, and there are several organizations in Singapore that specifically help foreign workers with employment issues. Migrant Workers\' Centre provides free legal advice and can help you file complaints with MOM. HOME (Humanitarian Organization for Migration Economics) offers comprehensive support including shelter if needed. TWC2 (Transient Workers Count Too) provides assistance with employment disputes. All of these organizations understand the challenges foreign workers face and can help you navigate this process safely. We can connect you with them today.',
+                                followUpQuestions: [
+                                    'Would you like contact information for these organizations?',
+                                    'Do you need help with language barriers?',
+                                    'Are you interested in free legal representation?'
+                                ]
+                            }
+                        }
+                    ]
+                };
+                
+                this.init();
+            }
+            
+            init() {
+                this.bindEvents();
+            }
+            
+            bindEvents() {
+                document.getElementById('startBtn').addEventListener('click', () => {
+                    this.startDemo();
+                });
+                
+                document.getElementById('pauseBtn').addEventListener('click', () => {
+                    this.pauseDemo();
+                });
+                
+                document.getElementById('resetBtn').addEventListener('click', () => {
+                    this.resetDemo();
+                });
+            }
+            
+            startDemo() {
+                if (this.isRunning && !this.isPaused) return;
+                
+                this.isRunning = true;
+                this.isPaused = false;
+                document.getElementById('startBtn').classList.add('active');
+                document.getElementById('pauseBtn').classList.remove('active');
+                
+                // Clear any existing pause timeout
+                if (this.pauseTimeout) {
+                    clearTimeout(this.pauseTimeout);
+                    this.pauseTimeout = null;
+                }
+                
+                // If resuming from pause, continue from current index
+                if (this.currentIndex === 0) {
+                    this.runConversation();
+                } else {
+                    // Resume from where we left off
+                    this.runConversation();
+                }
+            }
+            
+            pauseDemo() {
+                if (!this.isRunning) return;
+                
+                this.isPaused = true;
+                this.isRunning = false;
+                document.getElementById('startBtn').classList.remove('active');
+                document.getElementById('pauseBtn').classList.add('active');
+                
+                // Clear any pending timeouts
+                if (this.pauseTimeout) {
+                    clearTimeout(this.pauseTimeout);
+                }
+                
+                this.showNotification('Demo paused - Click play to resume', 'info');
+            }
+            
+            resetDemo() {
+                this.isRunning = false;
+                this.isPaused = false;
+                this.currentIndex = 0;
+                
+                // Clear any pending timeouts
+                if (this.pauseTimeout) {
+                    clearTimeout(this.pauseTimeout);
+                    this.pauseTimeout = null;
+                }
+                
+                document.getElementById('startBtn').classList.remove('active');
+                document.getElementById('pauseBtn').classList.remove('active');
+                
+                // Clear content
+                document.getElementById('transcriptionContent').innerHTML = `
+                    <div class="welcome-message">
+                        <i class="fas fa-microphone-alt"></i>
+                        <p>Real-time transcription will appear here</p>
+                    </div>
+                `;
+                
+                document.getElementById('suggestionsContent').innerHTML = `
+                    <div class="welcome-message">
+                        <i class="fas fa-lightbulb"></i>
+                        <p>AI suggestions will appear here to help guide your conversation</p>
+                    </div>
+                `;
+                
+                this.showNotification('Demo reset - Ready to start', 'info');
+            }
+            
+            runConversation() {
+                if (!this.isRunning || this.currentIndex >= this.conversation.length) {
+                    this.isRunning = false;
+                    this.isPaused = false;
+                    document.getElementById('startBtn').classList.remove('active');
+                    if (this.currentIndex >= this.conversation.length) {
+                        this.showNotification('Demo completed - Click reset to start over', 'success');
+                    }
+                    return;
+                }
+                
+                const message = this.conversation[this.currentIndex];
+                
+                // Show typing indicator for operator
+                if (message.speaker === 'operator') {
+                    this.showTypingIndicator();
+                }
+                
+                // Add message after delay
+                this.pauseTimeout = setTimeout(() => {
+                    if (!this.isRunning) return;
+                    
+                    this.addMessage(message);
+                    
+                    // Show AI suggestions if it's a question
+                    if (message.isQuestion) {
+                        setTimeout(() => {
+                            if (this.isRunning) {
+                                this.showAISuggestions(message.text);
+                            }
+                        }, 1000);
+                    }
+                    
+                    this.currentIndex++;
+                    
+                    // Continue conversation with longer delay for demo purposes
+                    if (this.isRunning) {
+                        this.pauseTimeout = setTimeout(() => {
+                            this.runConversation();
+                        }, message.delay);
+                    }
+                }, message.speaker === 'operator' ? 2000 : 0);
+            }
+            
+            showTypingIndicator() {
+                const content = document.getElementById('transcriptionContent');
+                const welcomeMessage = content.querySelector('.welcome-message');
+                if (welcomeMessage) {
+                    welcomeMessage.remove();
+                }
+                
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message operator';
+                typingDiv.innerHTML = `
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                `;
+                
+                content.appendChild(typingDiv);
+                content.scrollTop = content.scrollHeight;
+                
+                // Remove typing indicator after a delay
+                setTimeout(() => {
+                    if (typingDiv.parentNode) {
+                        typingDiv.remove();
+                    }
+                }, 1500);
+            }
+            
+            addMessage(message) {
+                const content = document.getElementById('transcriptionContent');
+                const welcomeMessage = content.querySelector('.welcome-message');
+                if (welcomeMessage) {
+                    welcomeMessage.remove();
+                }
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${message.speaker}`;
+                messageDiv.innerHTML = `
+                    <div class="message-bubble">
+                        <div class="message-meta">${message.speaker === 'user' ? 'Caller' : 'Operator'}</div>
+                        <div class="message-text">${message.text}</div>
+                    </div>
+                `;
+                
+                content.appendChild(messageDiv);
+                content.scrollTop = content.scrollHeight;
+            }
+            
+            showAISuggestions(questionText) {
+                const content = document.getElementById('suggestionsContent');
+                const welcomeMessage = content.querySelector('.welcome-message');
+                if (welcomeMessage) {
+                    welcomeMessage.remove();
+                }
+                
+                // Determine which AI responses to show based on question content
+                let responses = [];
+                if (questionText.toLowerCase().includes('work permit') || questionText.toLowerCase().includes('employer') || questionText.toLowerCase().includes('paying')) {
+                    responses = this.aiResponses['work permit issue'];
+                } else if (questionText.toLowerCase().includes('deducting') || questionText.toLowerCase().includes('legal') || questionText.toLowerCase().includes('accommodation')) {
+                    responses = this.aiResponses['salary deductions legal'];
+                } else if (questionText.toLowerCase().includes('job') || questionText.toLowerCase().includes('losing') || questionText.toLowerCase().includes('complain')) {
+                    responses = this.aiResponses['job security concerns'];
+                } else {
+                    // Default responses
+                    responses = [
+                        {
+                            type: 'General Response',
+                            text: 'I understand your concern. Let me help you with that.',
+                            confidence: 0.85,
+                            details: {
+                                keyPoints: ['Listen to the caller\'s specific situation', 'Provide relevant legal information', 'Offer practical next steps'],
+                                naturalResponse: 'I understand your concern. Let me help you with that. Can you tell me more about your specific situation?',
+                                followUpQuestions: ['Can you provide more details?', 'What exactly happened?', 'When did this occur?']
+                            }
+                        },
+                        {
+                            type: 'Follow-up',
+                            text: 'Can you provide more details about your specific situation?',
+                            confidence: 0.80,
+                            details: {
+                                keyPoints: ['Gather more information', 'Understand the full context', 'Identify specific legal issues'],
+                                naturalResponse: 'To better assist you, I need to understand more about your situation. Can you provide more details about what happened?',
+                                followUpQuestions: ['What are the key facts?', 'Do you have any documentation?', 'What outcome are you hoping for?']
+                            }
+                        }
+                    ];
+                }
+                
+                // Clear existing suggestions
+                content.innerHTML = '';
+                
+                // Add new suggestions
+                responses.forEach((response, index) => {
+                    const suggestionDiv = document.createElement('div');
+                    suggestionDiv.className = 'suggestion-item';
+                    suggestionDiv.innerHTML = `
+                        <div class="suggestion-header">
+                            <span class="suggestion-type">${response.type}</span>
+                            <span class="suggestion-confidence">${Math.round(response.confidence * 100)}%</span>
+                        </div>
+                        <div class="suggestion-text">${response.text}</div>
+                        <div class="suggestion-actions">
+                            <button class="suggestion-btn primary" onclick="transcriptionApp.showDetails(${index})">
+                                <i class="fas fa-info-circle"></i> View Details
+                            </button>
+                            <button class="suggestion-btn secondary" onclick="transcriptionApp.dismissSuggestion(${index})">
+                                <i class="fas fa-times"></i> Dismiss
+                            </button>
+                        </div>
+                        <div class="suggestion-details" id="details-${index}">
+                            <div class="details-section">
+                                <div class="details-title">Key Points</div>
+                                <ul class="key-points">
+                                    ${response.details.keyPoints.map(point => `<li>${point}</li>`).join('')}
+                                </ul>
+                            </div>
+                            <div class="details-section">
+                                <div class="details-title">Suggested Response</div>
+                                <div class="natural-response">${response.details.naturalResponse}</div>
+                                <div style="font-size: 11px; color: #718096; margin-top: 6px; font-style: italic;">
+                                    Use this as guidance for your verbal response to the caller
+                                </div>
+                            </div>
+                            <div class="details-section">
+                                <div class="details-title">Follow-up Questions</div>
+                                <ul class="follow-up-questions">
+                                    ${response.details.followUpQuestions.map(question => `<li>${question}</li>`).join('')}
+                                </ul>
+                            </div>
+                            <div class="suggestion-actions" style="margin-top: 12px;">
+                                <button class="suggestion-btn secondary" onclick="transcriptionApp.dismissSuggestion(${index})">
+                                    <i class="fas fa-times"></i> Close
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    content.appendChild(suggestionDiv);
+                });
+                
+                content.scrollTop = content.scrollHeight;
+            }
+            
+            showDetails(index) {
+                const detailsElement = document.getElementById(`details-${index}`);
+                if (detailsElement) {
+                    // Toggle the details display
+                    if (detailsElement.classList.contains('show')) {
+                        detailsElement.classList.remove('show');
+                    } else {
+                        // Hide all other details first
+                        document.querySelectorAll('.suggestion-details').forEach(details => {
+                            details.classList.remove('show');
+                        });
+                        // Show this one
+                        detailsElement.classList.add('show');
+                    }
+                }
+            }
+            
+            
+            varyResponse(text) {
+                // Add elaborate variations to demonstrate natural operator responses based on AI suggestions
+                const variations = {
+                    'I understand your concern': ['I completely understand your concern', 'I can see why you\'re concerned about this', 'Your concern is absolutely valid'],
+                    'this is actually a very common issue': ['this is unfortunately a very common issue we see', 'this happens more often than you might think', 'we help many workers with similar situations'],
+                    'In Singapore, foreign workers have specific rights': ['Singapore has strong protections for foreign workers', 'The law in Singapore specifically protects foreign workers', 'Foreign workers in Singapore have clear legal rights'],
+                    'The law is very clear on this': ['The Employment Act is very specific about this', 'Singapore\'s employment laws are quite strict on this point', 'The legal requirements are very clear'],
+                    'The good news is that': ['The positive aspect is that', 'What\'s encouraging is that', 'Fortunately,'],
+                    'MOM takes these cases very seriously': ['MOM has a strong track record with these cases', 'MOM is known for taking these violations seriously', 'MOM has been very effective in handling these situations'],
+                    'I completely understand your concerns about job security': ['Your concerns about job security are completely understandable', 'Job security is always the biggest worry in these situations', 'I know how scary it can be to worry about your job'],
+                    'The good news is that Singapore has strong protections': ['Singapore actually has excellent protections for workers', 'The system is designed to protect workers like you', 'Singapore\'s laws are specifically designed to protect workers'],
+                    'You\'re not alone in this situation': ['Many workers face similar challenges', 'This is unfortunately not uncommon', 'You\'re part of a larger community of workers who need help'],
+                    'We can connect you with them today': ['I can help you get in touch with them right now', 'We can arrange for you to speak with them today', 'I\'ll help you contact them immediately']
+                };
+                
+                let variedText = text;
+                let replacements = 0;
+                const maxReplacements = 2; // Allow up to 2 variations per response
+                
+                for (const [original, alternatives] of Object.entries(variations)) {
+                    if (variedText.includes(original) && replacements < maxReplacements) {
+                        const randomAlternative = alternatives[Math.floor(Math.random() * alternatives.length)];
+                        variedText = variedText.replace(original, randomAlternative);
+                        replacements++;
+                    }
+                }
+                
+                // Add some natural conversational elements
+                const conversationalAdditions = [
+                    'Let me explain this clearly',
+                    'I want to make sure you understand',
+                    'This is important information',
+                    'Let me break this down for you',
+                    'I\'ll walk you through this step by step'
+                ];
+                
+                // Sometimes add a conversational element at the beginning
+                if (Math.random() < 0.3) {
+                    const addition = conversationalAdditions[Math.floor(Math.random() * conversationalAdditions.length)];
+                    variedText = addition + '. ' + variedText;
+                }
+                
+                return variedText;
+            }
+            
+            dismissSuggestion(index) {
+                const suggestionItems = document.querySelectorAll('.suggestion-item');
+                if (suggestionItems[index]) {
+                    suggestionItems[index].remove();
+                }
+                
+                this.showNotification('Suggestion dismissed', 'info');
+            }
+            
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${type === 'success' ? '#48bb78' : type === 'error' ? '#f56565' : '#4299e1'};
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-weight: 500;
+                    z-index: 3000;
+                    animation: slideInRight 0.3s ease;
+                `;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'slideOutRight 0.3s ease';
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }, 3000);
+            }
+        }
+        
+        // Add CSS animations for notifications
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Initialize the application
+        let transcriptionApp;
+        document.addEventListener('DOMContentLoaded', () => {
+            transcriptionApp = new RealTimeTranscription();
+        });
+    </script>
+</body>
+</html>
