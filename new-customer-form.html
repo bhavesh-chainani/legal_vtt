@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Customer Registration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .app-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            margin: 10px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 0 30px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #4a5568;
+        }
+
+        .logo i {
+            color: #667eea;
+            font-size: 28px;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #718096;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #48bb78;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .main-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 20px;
+            padding: 30px;
+            overflow: hidden;
+        }
+
+        .conversation-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .panel-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .conversation-content {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 15px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.customer {
+            justify-content: flex-start;
+        }
+
+        .message.operator {
+            justify-content: flex-end;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .message.customer .message-bubble {
+            background: rgba(102, 126, 234, 0.1);
+            color: #2d3748;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .message.operator .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message-meta {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-bottom: 4px;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 18px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            max-width: 100px;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: #a0aec0;
+            border-radius: 50%;
+            animation: typing 1.4s infinite both;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-10px); opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .form-content {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .welcome-message {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #a0aec0;
+            text-align: center;
+        }
+
+        .welcome-message i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #cbd5e0;
+        }
+
+        .loading-animation {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #667eea;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(102, 126, 234, 0.1);
+            border-left: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .loading-subtext {
+            font-size: 14px;
+            color: #718096;
+        }
+
+        .form-generation-animation {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #ed8936;
+            text-align: center;
+        }
+
+        .form-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .customer-form {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.5s ease;
+        }
+
+        .form-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .form-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .form-subtitle {
+            font-size: 14px;
+            color: #718096;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.8);
+            transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-input.filled {
+            background: rgba(102, 126, 234, 0.05);
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.8);
+            transition: border-color 0.2s ease;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.8);
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(0, 0, 0, 0.05);
+            color: #718096;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .form-note {
+            background: rgba(102, 126, 234, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #4a5568;
+        }
+
+        .form-note i {
+            color: #667eea;
+            margin-right: 8px;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.1);
+        }
+
+        .control-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr 350px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 400px;
+            }
+            
+            .app-container {
+                margin: 5px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 0 20px;
+                height: 60px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .controls {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-user-plus"></i>
+                <span>New Customer Registration</span>
+            </div>
+            <div class="status">
+                <div class="status-dot"></div>
+                <span>Live Call</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Conversation Panel -->
+            <div class="conversation-panel">
+                <div class="panel-header">
+                    <h2>Customer Call</h2>
+                </div>
+                
+                <div class="conversation-content" id="conversationContent">
+                    <div class="welcome-message">
+                        <i class="fas fa-phone"></i>
+                        <p>Customer call transcription will appear here</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Panel -->
+            <div class="form-panel">
+                <div class="panel-header">
+                    <h2>Customer Registration</h2>
+                </div>
+                
+                <div class="form-content" id="formContent">
+                    <div class="welcome-message">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>New customer registration form will appear here</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Floating Controls -->
+        <div class="controls">
+            <button class="control-btn" id="startBtn" title="Start Demo">
+                <i class="fas fa-play"></i>
+            </button>
+            <button class="control-btn" id="pauseBtn" title="Pause Demo">
+                <i class="fas fa-pause"></i>
+            </button>
+            <button class="control-btn" id="resetBtn" title="Reset Demo">
+                <i class="fas fa-redo"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        class NewCustomerRegistration {
+            constructor() {
+                this.isRunning = false;
+                this.isPaused = false;
+                this.currentIndex = 0;
+                this.pauseTimeout = null;
+                this.customerDataCollected = false;
+                this.extractedData = {};
+                
+                this.conversation = [
+                    {
+                        speaker: 'customer',
+                        text: 'Hi, I need help with a legal matter. I have an issue with my landlord not returning my security deposit.',
+                        isQuestion: true,
+                        delay: 3000
+                    },
+                    {
+                        speaker: 'operator',
+                        text: 'I\'m sorry to hear about your situation. I\'d be happy to help you with your security deposit issue. To get started, could I please get your full name?',
+                        isQuestion: false,
+                        delay: 4000
+                    },
+                    {
+                        speaker: 'customer',
+                        text: 'My name is Michael Rodriguez.',
+                        isQuestion: false,
+                        delay: 3000,
+                        extractData: { field: 'name', value: 'Michael Rodriguez' }
+                    },
+                    {
+                        speaker: 'operator',
+                        text: 'Thank you, Mr. Rodriguez. And could I get your NRIC number for identification purposes?',
+                        isQuestion: false,
+                        delay: 3000
+                    },
+                    {
+                        speaker: 'customer',
+                        text: 'Sure, it\'s S9876543B.',
+                        isQuestion: false,
+                        delay: 3000,
+                        extractData: { field: 'nric', value: 'S9876543B' }
+                    },
+                    {
+                        speaker: 'operator',
+                        text: 'Perfect. And what\'s your contact phone number?',
+                        isQuestion: false,
+                        delay: 3000
+                    },
+                    {
+                        speaker: 'customer',
+                        text: 'My phone number is 8123 4567.',
+                        isQuestion: false,
+                        delay: 3000,
+                        extractData: { field: 'phone', value: '8123 4567' }
+                    },
+                    {
+                        speaker: 'operator',
+                        text: 'Thank you. Let me also get your email address and the address where this rental issue occurred.',
+                        isQuestion: false,
+                        delay: 4000
+                    },
+                    {
+                        speaker: 'customer',
+                        text: 'My email is michael.rodriguez@email.com, and the rental property is at 456 Clementi Road, Singapore 599456.',
+                        isQuestion: false,
+                        delay: 4000,
+                        extractData: { field: 'email', value: 'michael.rodriguez@email.com' },
+                        extractData2: { field: 'address', value: '456 Clementi Road, Singapore 599456' }
+                    },
+                    {
+                        speaker: 'operator',
+                        text: 'Excellent. Let me check our system for your information and then I\'ll create a new case file for you.',
+                        isQuestion: false,
+                        delay: 3000,
+                        triggerForm: true
+                    }
+                ];
+                
+                this.init();
+            }
+            
+            init() {
+                this.bindEvents();
+            }
+            
+            bindEvents() {
+                document.getElementById('startBtn').addEventListener('click', () => {
+                    this.startDemo();
+                });
+                
+                document.getElementById('pauseBtn').addEventListener('click', () => {
+                    this.pauseDemo();
+                });
+                
+                document.getElementById('resetBtn').addEventListener('click', () => {
+                    this.resetDemo();
+                });
+            }
+            
+            startDemo() {
+                if (this.isRunning && !this.isPaused) return;
+                
+                this.isRunning = true;
+                this.isPaused = false;
+                document.getElementById('startBtn').classList.add('active');
+                document.getElementById('pauseBtn').classList.remove('active');
+                
+                // Clear any existing pause timeout
+                if (this.pauseTimeout) {
+                    clearTimeout(this.pauseTimeout);
+                    this.pauseTimeout = null;
+                }
+                
+                // If resuming from pause, continue from current index
+                if (this.currentIndex === 0) {
+                    this.runConversation();
+                } else {
+                    // Resume from where we left off
+                    this.runConversation();
+                }
+            }
+            
+            pauseDemo() {
+                if (!this.isRunning) return;
+                
+                this.isPaused = true;
+                this.isRunning = false;
+                document.getElementById('startBtn').classList.remove('active');
+                document.getElementById('pauseBtn').classList.add('active');
+                
+                // Clear any pending timeouts
+                if (this.pauseTimeout) {
+                    clearTimeout(this.pauseTimeout);
+                }
+                
+                this.showNotification('Demo paused - Click play to resume', 'info');
+            }
+            
+            resetDemo() {
+                this.isRunning = false;
+                this.isPaused = false;
+                this.currentIndex = 0;
+                this.customerDataCollected = false;
+                this.extractedData = {};
+                
+                // Clear any pending timeouts
+                if (this.pauseTimeout) {
+                    clearTimeout(this.pauseTimeout);
+                    this.pauseTimeout = null;
+                }
+                
+                document.getElementById('startBtn').classList.remove('active');
+                document.getElementById('pauseBtn').classList.remove('active');
+                
+                // Clear content
+                document.getElementById('conversationContent').innerHTML = `
+                    <div class="welcome-message">
+                        <i class="fas fa-phone"></i>
+                        <p>Customer call transcription will appear here</p>
+                    </div>
+                `;
+                
+                document.getElementById('formContent').innerHTML = `
+                    <div class="welcome-message">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>New customer registration form will appear here</p>
+                    </div>
+                `;
+                
+                this.showNotification('Demo reset - Ready to start', 'info');
+            }
+            
+            runConversation() {
+                if (!this.isRunning || this.currentIndex >= this.conversation.length) {
+                    this.isRunning = false;
+                    this.isPaused = false;
+                    document.getElementById('startBtn').classList.remove('active');
+                    if (this.currentIndex >= this.conversation.length) {
+                        this.showNotification('Demo completed - Click reset to start over', 'success');
+                    }
+                    return;
+                }
+                
+                const message = this.conversation[this.currentIndex];
+                
+                // Show typing indicator for operator
+                if (message.speaker === 'operator') {
+                    this.showTypingIndicator();
+                }
+                
+                // Add message after delay
+                this.pauseTimeout = setTimeout(() => {
+                    if (!this.isRunning) return;
+                    
+                    this.addMessage(message);
+                    
+                    // Extract data if specified
+                    if (message.extractData) {
+                        this.extractedData[message.extractData.field] = message.extractData.value;
+                    }
+                    if (message.extractData2) {
+                        this.extractedData[message.extractData2.field] = message.extractData2.value;
+                    }
+                    
+                    // Trigger form creation if this message should trigger it
+                    if (message.triggerForm) {
+                        setTimeout(() => {
+                            if (this.isRunning) {
+                                this.showFormGeneration();
+                            }
+                        }, 1000);
+                    }
+                    
+                    this.currentIndex++;
+                    
+                    // Continue conversation with longer delay for demo purposes
+                    if (this.isRunning) {
+                        this.pauseTimeout = setTimeout(() => {
+                            this.runConversation();
+                        }, message.delay);
+                    }
+                }, message.speaker === 'operator' ? 2000 : 0);
+            }
+            
+            showTypingIndicator() {
+                const content = document.getElementById('conversationContent');
+                const welcomeMessage = content.querySelector('.welcome-message');
+                if (welcomeMessage) {
+                    welcomeMessage.remove();
+                }
+                
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message operator';
+                typingDiv.innerHTML = `
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                `;
+                
+                content.appendChild(typingDiv);
+                content.scrollTop = content.scrollHeight;
+                
+                // Remove typing indicator after a delay
+                setTimeout(() => {
+                    if (typingDiv.parentNode) {
+                        typingDiv.remove();
+                    }
+                }, 1500);
+            }
+            
+            addMessage(message) {
+                const content = document.getElementById('conversationContent');
+                const welcomeMessage = content.querySelector('.welcome-message');
+                if (welcomeMessage) {
+                    welcomeMessage.remove();
+                }
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${message.speaker}`;
+                messageDiv.innerHTML = `
+                    <div class="message-bubble">
+                        <div class="message-meta">${message.speaker === 'customer' ? 'Customer' : 'Operator'}</div>
+                        <div class="message-text">${message.text}</div>
+                    </div>
+                `;
+                
+                content.appendChild(messageDiv);
+                content.scrollTop = content.scrollHeight;
+            }
+            
+            showFormGeneration() {
+                const content = document.getElementById('formContent');
+                content.innerHTML = `
+                    <div class="form-generation-animation">
+                        <i class="fas fa-file-alt form-icon"></i>
+                        <div class="loading-text">Generating New Customer Form</div>
+                        <div class="loading-subtext">Creating registration form with collected information...</div>
+                    </div>
+                `;
+                
+                // Show the actual form after animation
+                setTimeout(() => {
+                    this.displayCustomerForm();
+                }, 3000);
+            }
+            
+            displayCustomerForm() {
+                const content = document.getElementById('formContent');
+                content.innerHTML = `
+                    <div class="customer-form">
+                        <div class="form-header">
+                            <i class="fas fa-user-plus" style="color: #667eea; font-size: 24px;"></i>
+                            <div>
+                                <div class="form-title">New Customer Registration</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-subtitle">Customer information extracted from conversation:</div>
+                        
+                        <div class="form-note">
+                            <i class="fas fa-info-circle"></i>
+                            This form has been pre-filled with information collected during the call. Please review and complete any missing fields.
+                        </div>
+                        
+                        <form id="customerRegistrationForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Full Name *</label>
+                                    <input type="text" class="form-input filled" value="${this.extractedData.name || ''}" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">NRIC *</label>
+                                    <input type="text" class="form-input filled" value="${this.extractedData.nric || ''}" readonly>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Phone Number *</label>
+                                    <input type="tel" class="form-input filled" value="${this.extractedData.phone || ''}" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Email Address *</label>
+                                    <input type="email" class="form-input filled" value="${this.extractedData.email || ''}" readonly>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Address *</label>
+                                <input type="text" class="form-input filled" value="${this.extractedData.address || ''}" readonly>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Case Type *</label>
+                                    <select class="form-select" required>
+                                        <option value="">Select case type...</option>
+                                        <option value="property" selected>Property Dispute</option>
+                                        <option value="employment">Employment</option>
+                                        <option value="family">Family Law</option>
+                                        <option value="criminal">Criminal</option>
+                                        <option value="civil">Civil Litigation</option>
+                                        <option value="contract">Contract Dispute</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Priority Level *</label>
+                                    <select class="form-select" required>
+                                        <option value="">Select priority...</option>
+                                        <option value="low">Low</option>
+                                        <option value="medium" selected>Medium</option>
+                                        <option value="high">High</option>
+                                        <option value="urgent">Urgent</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Case Description</label>
+                                <textarea class="form-textarea" placeholder="Describe the legal issue...">Security deposit dispute with landlord. Landlord is refusing to return security deposit without valid reasons. Property located at ${this.extractedData.address || ''}.</textarea>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Preferred Contact Method</label>
+                                    <select class="form-select">
+                                        <option value="phone" selected>Phone</option>
+                                        <option value="email">Email</option>
+                                        <option value="sms">SMS</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Preferred Language</label>
+                                    <select class="form-select">
+                                        <option value="english" selected>English</option>
+                                        <option value="mandarin">Mandarin</option>
+                                        <option value="malay">Malay</option>
+                                        <option value="tamil">Tamil</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i>
+                                    Create Customer & Case
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="registrationApp.saveAsDraft()">
+                                    <i class="fas fa-file-alt"></i>
+                                    Save as Draft
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                `;
+                
+                // Bind form submission
+                document.getElementById('customerRegistrationForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.submitForm();
+                });
+                
+                this.customerDataCollected = true;
+                this.showNotification('New customer form generated successfully', 'success');
+            }
+            
+            submitForm() {
+                this.showNotification('Customer registration submitted successfully!', 'success');
+                
+                // Simulate form submission
+                setTimeout(() => {
+                    const content = document.getElementById('formContent');
+                    content.innerHTML = `
+                        <div class="customer-form">
+                            <div style="text-align: center; padding: 40px 20px;">
+                                <i class="fas fa-check-circle" style="font-size: 48px; color: #48bb78; margin-bottom: 20px;"></i>
+                                <h3 style="color: #2d3748; margin-bottom: 10px;">Registration Successful!</h3>
+                                <p style="color: #718096; margin-bottom: 20px;">Customer and case have been created in the system.</p>
+                                <div style="background: rgba(72, 187, 120, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #48bb78;">
+                                    <strong>Case Number:</strong> CASE-2024-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}<br>
+                                    <strong>Customer ID:</strong> CUST-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }, 1000);
+            }
+            
+            saveAsDraft() {
+                this.showNotification('Form saved as draft', 'info');
+            }
+            
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${type === 'success' ? '#48bb78' : type === 'error' ? '#f56565' : '#4299e1'};
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-weight: 500;
+                    z-index: 3000;
+                    animation: slideInRight 0.3s ease;
+                `;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'slideOutRight 0.3s ease';
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }, 3000);
+            }
+        }
+        
+        // Add CSS animations for notifications
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Initialize the application
+        let registrationApp;
+        document.addEventListener('DOMContentLoaded', () => {
+            registrationApp = new NewCustomerRegistration();
+        });
+    </script>
+</body>
+</html>
