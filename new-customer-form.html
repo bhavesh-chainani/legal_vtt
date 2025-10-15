@@ -800,10 +800,11 @@
             
             runConversation() {
                 if (!this.isRunning || this.currentIndex >= this.conversation.length) {
-                    this.isRunning = false;
-                    this.isPaused = false;
-                    document.getElementById('startBtn').classList.remove('active');
-                    if (this.currentIndex >= this.conversation.length) {
+                    // Don't end the demo immediately if we're generating a form
+                    if (this.currentIndex >= this.conversation.length && !this.customerDataCollected) {
+                        this.isRunning = false;
+                        this.isPaused = false;
+                        document.getElementById('startBtn').classList.remove('active');
                         this.showNotification('Demo completed - Click reset to start over', 'success');
                     }
                     return;
@@ -835,6 +836,8 @@
                         setTimeout(() => {
                             if (this.isRunning) {
                                 this.showFormGeneration();
+                                // Keep demo running to show the form
+                                this.isRunning = true;
                             }
                         }, 1000);
                     }
@@ -911,7 +914,14 @@
                 // Show the actual form after animation
                 setTimeout(() => {
                     this.displayCustomerForm();
-                }, 3000);
+                    // End demo after form is shown
+                    setTimeout(() => {
+                        this.isRunning = false;
+                        this.isPaused = false;
+                        document.getElementById('startBtn').classList.remove('active');
+                        this.showNotification('Demo completed - Click reset to start over', 'success');
+                    }, 1000);
+                }, 2000);
             }
             
             displayCustomerForm() {
