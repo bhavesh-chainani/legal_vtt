@@ -87,6 +87,30 @@
             overflow: hidden;
         }
 
+        /* 
+         * CUSTOMIZABLE PANEL WIDTHS
+         * To adjust the separation between panels, modify these CSS variables:
+         * 
+         * --left-panel-ratio: Controls the left panel width (1fr = flexible, 2fr = twice as wide as right panel)
+         * --right-panel-width: Fixed width for the right panel (400px, 350px, 300px, etc.)
+         * --panel-gap: Space between the panels (20px, 30px, 40px, etc.)
+         * 
+         * Examples:
+         * For wider right panel: --right-panel-width: 500px;
+         * For smaller gap: --panel-gap: 10px;
+         * For larger gap: --panel-gap: 40px;
+         */
+        :root {
+            --left-panel-ratio: 1fr;
+            --right-panel-width: 400px;
+            --panel-gap: 20px;
+        }
+
+        .main-content.adjustable {
+            grid-template-columns: var(--left-panel-ratio) var(--right-panel-width);
+            gap: var(--panel-gap);
+        }
+
         .conversation-panel {
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(10px);
@@ -505,6 +529,10 @@
             .main-content {
                 grid-template-columns: 1fr 350px;
             }
+            
+            .main-content.adjustable {
+                grid-template-columns: var(--left-panel-ratio) 350px;
+            }
         }
 
         @media (max-width: 768px) {
@@ -553,7 +581,7 @@
         </header>
 
         <!-- Main Content -->
-        <main class="main-content">
+        <main class="main-content adjustable">
             <!-- Conversation Panel -->
             <div class="conversation-panel">
                 <div class="panel-header">
@@ -612,58 +640,58 @@
                         speaker: 'customer',
                         text: 'Hi, I need help with a legal matter. I have an issue with my landlord not returning my security deposit.',
                         isQuestion: true,
-                        delay: 3000
+                        delay: 1000
                     },
                     {
                         speaker: 'operator',
                         text: 'I\'m sorry to hear about your situation. I\'d be happy to help you with your security deposit issue. To get started, could I please get your full name?',
                         isQuestion: false,
-                        delay: 4000
+                        delay: 1500
                     },
                     {
                         speaker: 'customer',
                         text: 'My name is Michael Rodriguez.',
                         isQuestion: false,
-                        delay: 3000,
+                        delay: 1000,
                         extractData: { field: 'name', value: 'Michael Rodriguez' }
                     },
                     {
                         speaker: 'operator',
                         text: 'Thank you, Mr. Rodriguez. And could I get your NRIC number for identification purposes?',
                         isQuestion: false,
-                        delay: 3000
+                        delay: 1000
                     },
                     {
                         speaker: 'customer',
                         text: 'Sure, it\'s S9876543B.',
                         isQuestion: false,
-                        delay: 3000,
+                        delay: 1000,
                         extractData: { field: 'nric', value: 'S9876543B' }
                     },
                     {
                         speaker: 'operator',
                         text: 'Perfect. And what\'s your contact phone number?',
                         isQuestion: false,
-                        delay: 3000
+                        delay: 1000
                     },
                     {
                         speaker: 'customer',
                         text: 'My phone number is 8123 4567.',
                         isQuestion: false,
-                        delay: 3000,
+                        delay: 1000,
                         extractData: { field: 'phone', value: '8123 4567' }
                     },
                     {
                         speaker: 'operator',
                         text: 'Thank you. Let me also get your email address and the address where this rental issue occurred.',
                         isQuestion: false,
-                        delay: 4000
+                        delay: 1500
                     },
                     {
                         speaker: 'customer',
                         text: 'My email is michael.rodriguez@email.com, and the rental property is at 456 Clementi Road, Singapore 599456.',
                         isQuestion: false,
-                        delay: 4000,
+                        delay: 1500,
                         extractData: { field: 'email', value: 'michael.rodriguez@email.com' },
                         extractData2: { field: 'address', value: '456 Clementi Road, Singapore 599456' }
                     },
@@ -671,7 +699,7 @@
                         speaker: 'operator',
                         text: 'Excellent. Let me check our system for your information and then I\'ll create a new case file for you.',
                         isQuestion: false,
-                        delay: 3000,
+                        delay: 1500,
                         triggerForm: true
                     }
                 ];

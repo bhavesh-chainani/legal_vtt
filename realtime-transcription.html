@@ -87,6 +87,30 @@
             overflow: hidden;
         }
 
+        /* 
+         * CUSTOMIZABLE PANEL WIDTHS
+         * To adjust the separation between panels, modify these CSS variables:
+         * 
+         * --left-panel-ratio: Controls the left panel width (1fr = flexible, 2fr = twice as wide as right panel)
+         * --right-panel-width: Fixed width for the right panel (400px, 350px, 300px, etc.)
+         * --panel-gap: Space between the panels (20px, 30px, 40px, etc.)
+         * 
+         * Examples:
+         * For wider right panel: --right-panel-width: 500px;
+         * For smaller gap: --panel-gap: 10px;
+         * For larger gap: --panel-gap: 40px;
+         */
+        :root {
+            --left-panel-ratio: 1fr;
+            --right-panel-width: 400px;
+            --panel-gap: 20px;
+        }
+
+        .main-content.adjustable {
+            grid-template-columns: var(--left-panel-ratio) var(--right-panel-width);
+            gap: var(--panel-gap);
+        }
+
         .transcription-panel {
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(10px);
@@ -451,6 +475,10 @@
             .main-content {
                 grid-template-columns: 1fr 350px;
             }
+            
+            .main-content.adjustable {
+                grid-template-columns: var(--left-panel-ratio) 350px;
+            }
         }
 
         @media (max-width: 768px) {
@@ -495,7 +523,7 @@
         </header>
 
         <!-- Main Content -->
-        <main class="main-content">
+        <main class="main-content adjustable">
             <!-- Transcription Panel -->
             <div class="transcription-panel">
                 <div class="panel-header">
